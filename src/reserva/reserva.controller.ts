@@ -102,6 +102,56 @@ export class ReservaController {
     return { success: true, data, total: data.length };
   }
 
+  @Get('cliente/:clienteId')
+  @ApiOperation({ summary: 'Obtener reservas de un cliente' })
+  @ApiParam({ name: 'clienteId', description: 'ID del cliente' })
+  @ApiResponse({ status: 200, description: 'Lista de reservas del cliente' })
+  async findByCliente(@Param('clienteId') clienteId: string) {
+    const data = await this.reservaService.findByCliente(clienteId);
+    return { success: true, data, total: data.length };
+  }
+
+  @Post('crear-reserva')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Crear nueva reserva de paquete turístico' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        clienteId: { type: 'string', description: 'ID del cliente' },
+        paqueteId: { type: 'string', description: 'ID del paquete turístico' },
+        fechaViaje: { type: 'string', format: 'date', description: 'Fecha del viaje' },
+        numeroPersonas: { type: 'number', description: 'Número de personas' },
+        observaciones: { type: 'string', description: 'Observaciones especiales' }
+      },
+      required: ['clienteId', 'paqueteId', 'fechaViaje', 'numeroPersonas']
+    }
+  })
+  @ApiResponse({ status: 201, description: 'Reserva creada exitosamente' })
+  async crearReserva(@Body() reservaDto: {
+    clienteId: string;
+    paqueteId: string;
+    fechaViaje: string;
+    numeroPersonas: number;
+    observaciones?: string;
+  }) {
+    const data = await this.reservaService.crearReserva(reservaDto);
+    return {
+      success: true,
+      message: 'Reserva creada exitosamente',
+      data,
+    };
+  }
+
+  @Get(':reservaId/estado-pago')
+  @ApiOperation({ summary: 'Obtener estado de pago de reserva' })
+  @ApiParam({ name: 'reservaId', description: 'ID de la reserva' })
+  @ApiResponse({ status: 200, description: 'Estado de pago de la reserva' })
+  async getEstadoPago(@Param('reservaId') reservaId: string) {
+    const data = await this.reservaService.getEstadoPago(reservaId);
+    return { success: true, data };
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Obtener Reserva por ID' })
   @ApiParam({ name: 'id', description: 'ID del Reserva' })

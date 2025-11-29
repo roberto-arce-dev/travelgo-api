@@ -9,6 +9,7 @@ import {
   HttpCode,
   HttpStatus,
   Req,
+  Query,
   BadRequestException,
 } from '@nestjs/common';
 import { FastifyRequest } from 'fastify';
@@ -95,10 +96,38 @@ export class PaqueteTuristicoController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Listar todos los PaqueteTuristicos' })
-  @ApiResponse({ status: 200, description: 'Lista de PaqueteTuristicos' })
+  @ApiOperation({ summary: 'Listar todos los Paqueteturisticos' })
+  @ApiResponse({ status: 200, description: 'Lista de Paqueteturisticos' })
   async findAll() {
     const data = await this.paqueteturisticoService.findAll();
+    return { success: true, data, total: data.length };
+  }
+
+  @Get('disponibles')
+  @ApiOperation({ summary: 'Listar paquetes turísticos disponibles' })
+  @ApiResponse({ status: 200, description: 'Lista de paquetes disponibles' })
+  async findDisponibles() {
+    const data = await this.paqueteturisticoService.findDisponibles();
+    return { success: true, data, total: data.length };
+  }
+
+  @Get('destino/:destino')
+  @ApiOperation({ summary: 'Filtrar paquetes por destino' })
+  @ApiParam({ name: 'destino', description: 'Nombre del destino' })
+  @ApiResponse({ status: 200, description: 'Lista de paquetes por destino' })
+  async findByDestino(@Param('destino') destino: string) {
+    const data = await this.paqueteturisticoService.findByDestino(destino);
+    return { success: true, data, total: data.length };
+  }
+
+  @Get('precio-rango')
+  @ApiOperation({ summary: 'Filtrar paquetes por rango de precio' })
+  @ApiResponse({ status: 200, description: 'Lista de paquetes por rango de precio' })
+  async findByPrecioRango(
+    @Query('min') precioMin?: number,
+    @Query('max') precioMax?: number
+  ) {
+    const data = await this.paqueteturisticoService.findByPrecioRango(precioMin, precioMax);
     return { success: true, data, total: data.length };
   }
 
