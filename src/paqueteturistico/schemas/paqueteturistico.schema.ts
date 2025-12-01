@@ -35,10 +35,14 @@ export class PaqueteTuristico {
   @Prop({ default: true })
   activo?: boolean;
 
+  @Prop({ default: true })
+  disponible?: boolean;
+
 }
 
 export const PaqueteTuristicoSchema = SchemaFactory.createForClass(PaqueteTuristico);
 
 PaqueteTuristicoSchema.index({ destino: 1 });
 PaqueteTuristicoSchema.index({ activo: 1 });
+PaqueteTuristicoSchema.index({ disponible: 1 });
 PaqueteTuristicoSchema.index({ nombre: 'text', descripcion: 'text' });

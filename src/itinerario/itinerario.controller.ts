@@ -102,6 +102,20 @@ export class ItinerarioController {
     return { success: true, data, total: data.length };
   }
 
+  @Get('paquete/:paqueteId')
+  @ApiOperation({ summary: 'Obtener Itinerarios por Paquete Turístico' })
+  @ApiParam({ name: 'paqueteId', description: 'ID del Paquete Turístico' })
+  @ApiResponse({ status: 200, description: 'Lista de itinerarios del paquete ordenados por día' })
+  async findByPaquete(@Param('paqueteId') paqueteId: string) {
+    const data = await this.itinerarioService.findByPaquete(paqueteId);
+    return {
+      success: true,
+      data,
+      total: data.length,
+      message: data.length === 0 ? 'No se encontraron itinerarios para este paquete' : undefined
+    };
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Obtener Itinerario por ID' })
   @ApiParam({ name: 'id', description: 'ID del Itinerario' })

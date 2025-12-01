@@ -4,10 +4,14 @@ import { ReservaService } from './reserva.service';
 import { ReservaController } from './reserva.controller';
 import { UploadModule } from '../upload/upload.module';
 import { Reserva, ReservaSchema } from './schemas/reserva.schema';
+import { PaqueteTuristico, PaqueteTuristicoSchema } from '../paqueteturistico/schemas/paqueteturistico.schema';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Reserva.name, schema: ReservaSchema }]),
+    MongooseModule.forFeature([
+      { name: Reserva.name, schema: ReservaSchema },
+      { name: PaqueteTuristico.name, schema: PaqueteTuristicoSchema },
+    ]),
     UploadModule,
   ],
   controllers: [ReservaController],

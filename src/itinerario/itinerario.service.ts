@@ -21,6 +21,14 @@ export class ItinerarioService {
     return itinerarios;
   }
 
+  async findByPaquete(paqueteId: string): Promise<Itinerario[]> {
+    const itinerarios = await this.itinerarioModel
+      .find({ paquete: paqueteId })
+      .sort({ dia: 1 })
+      .populate('paquete', 'nombre destino precio');
+    return itinerarios;
+  }
+
   async findOne(id: string | number): Promise<Itinerario> {
     const itinerario = await this.itinerarioModel.findById(id)
     .populate('paquete', 'nombre destino');

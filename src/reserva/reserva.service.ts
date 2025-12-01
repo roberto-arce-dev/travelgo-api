@@ -4,11 +4,13 @@ import { Model, Types } from 'mongoose';
 import { CreateReservaDto } from './dto/create-reserva.dto';
 import { UpdateReservaDto } from './dto/update-reserva.dto';
 import { Reserva, ReservaDocument } from './schemas/reserva.schema';
+import { PaqueteTuristico, PaqueteTuristicoDocument } from '../paqueteturistico/schemas/paqueteturistico.schema';
 
 @Injectable()
 export class ReservaService {
   constructor(
     @InjectModel(Reserva.name) private reservaModel: Model<ReservaDocument>,
+    @InjectModel(PaqueteTuristico.name) private paqueteTuristicoModel: Model<PaqueteTuristicoDocument>,
   ) {}
 
   async create(createReservaDto: CreateReservaDto): Promise<Reserva> {
@@ -61,10 +63,19 @@ export class ReservaService {
     numeroPersonas: number;
     solicitudesEspeciales?: string;
   }): Promise<Reserva> {
-    // Calcular precio total basado en número de personas
-    // En un caso real, obtendrías el precio del paquete
-    const precioBase = 500; // Precio base por persona
-    const total = precioBase * reservaDto.numeroPersonas;
+    // Obtener el paquete turístico para calcular el precio real
+    const paquete = await this.paqueteTuristicoModel.findById(reservaDto.paqueteId);
+
+    if (!paquete) {
+      throw new NotFoundException(`Paquete Turístico con ID ${reservaDto.paqueteId} no encontrado`);
+    }
+
+    if (!paquete.disponible || !paquete.activo) {
+      throw new NotFoundException(`El paquete turístico no está disponible para reservas`);
+    }
+
+    // Calcular precio total basado en el precio del paquete y número de personas
+    const total = paquete.precio * reservaDto.numeroPersonas;
 
     const nuevaReserva = await this.reservaModel.create({
       cliente: new Types.ObjectId(reservaDto.clienteId),

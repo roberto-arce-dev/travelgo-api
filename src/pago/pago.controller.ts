@@ -102,6 +102,57 @@ export class PagoController {
     return { success: true, data, total: data.length };
   }
 
+  @Post('reserva/:reservaId')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Crear pago para una reserva específica' })
+  @ApiParam({ name: 'reservaId', description: 'ID de la Reserva' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['monto', 'metodoPago'],
+      properties: {
+        monto: { type: 'number', description: 'Monto del pago (debe coincidir con el total de la reserva)' },
+        metodoPago: { type: 'string', enum: ['efectivo', 'tarjeta', 'transferencia', 'webpay'], description: 'Método de pago' },
+        estado: { type: 'string', enum: ['pendiente', 'aprobado', 'rechazado'], description: 'Estado del pago (opcional, por defecto: pendiente)' },
+      },
+    },
+  })
+  @ApiResponse({ status: 201, description: 'Pago creado exitosamente' })
+  @ApiResponse({ status: 400, description: 'Datos inválidos o ya existe un pago para esta reserva' })
+  @ApiResponse({ status: 404, description: 'Reserva no encontrada' })
+  async crearPagoParaReserva(
+    @Param('reservaId') reservaId: string,
+    @Body() pagoData: { monto: number; metodoPago: string; estado?: string }
+  ) {
+    const data = await this.pagoService.crearPagoParaReserva(reservaId, pagoData);
+    return {
+      success: true,
+      message: 'Pago creado exitosamente para la reserva',
+      data,
+    };
+  }
+
+  @Get('reserva/:reservaId')
+  @ApiOperation({ summary: 'Obtener pago de una reserva específica' })
+  @ApiParam({ name: 'reservaId', description: 'ID de la Reserva' })
+  @ApiResponse({ status: 200, description: 'Pago encontrado' })
+  @ApiResponse({ status: 404, description: 'No se encontró pago para esta reserva' })
+  async findByReserva(@Param('reservaId') reservaId: string) {
+    const data = await this.pagoService.findByReserva(reservaId);
+    if (!data) {
+      return {
+        success: false,
+        message: 'No se encontró un pago registrado para esta reserva',
+        data: null,
+      };
+    }
+    return {
+      success: true,
+      message: 'Pago encontrado',
+      data,
+    };
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Obtener Pago por ID' })
   @ApiParam({ name: 'id', description: 'ID del Pago' })
@@ -119,13 +170,44 @@ export class PagoController {
   @ApiResponse({ status: 200, description: 'Pago actualizado exitosamente' })
   @ApiResponse({ status: 404, description: 'Pago no encontrado' })
   async update(
-    @Param('id') id: string, 
+    @Param('id') id: string,
     @Body() updatePagoDto: UpdatePagoDto
   ) {
     const data = await this.pagoService.update(id, updatePagoDto);
     return {
       success: true,
       message: 'Pago actualizado exitosamente',
+      data,
+    };
+  }
+
+  @Patch(':id/estado')
+  @ApiOperation({ summary: 'Actualizar estado del pago (pendiente/aprobado/rechazado)' })
+  @ApiParam({ name: 'id', description: 'ID del Pago' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['estado'],
+      properties: {
+        estado: {
+          type: 'string',
+          enum: ['pendiente', 'aprobado', 'rechazado'],
+          description: 'Nuevo estado del pago. Si se aprueba, la reserva se confirmará automáticamente.',
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 200, description: 'Estado del pago actualizado exitosamente' })
+  @ApiResponse({ status: 400, description: 'Estado inválido' })
+  @ApiResponse({ status: 404, description: 'Pago no encontrado' })
+  async updateEstado(
+    @Param('id') id: string,
+    @Body() body: { estado: string }
+  ) {
+    const data = await this.pagoService.updateEstado(id, body.estado);
+    return {
+      success: true,
+      message: `Estado del pago actualizado a: ${body.estado}`,
       data,
     };
   }
