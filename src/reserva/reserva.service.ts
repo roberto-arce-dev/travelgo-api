@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { CreateReservaDto } from './dto/create-reserva.dto';
@@ -72,6 +72,10 @@ export class ReservaService {
 
     if (!paquete.disponible || !paquete.activo) {
       throw new NotFoundException(`El paquete turístico no está disponible para reservas`);
+    }
+
+    if (paquete.precio == null) {
+      throw new BadRequestException('El paquete turístico no tiene un precio definido');
     }
 
     // Calcular precio total basado en el precio del paquete y número de personas
