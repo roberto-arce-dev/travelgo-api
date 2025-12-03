@@ -418,6 +418,38 @@
       "name": "Paquete Turístico",
       "item": [
         {
+          "name": "Crear PaqueteTuristico",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Aventura en Machu Picchu\",\n  \"descripcion\": \"Tour de 3 dias a Machu Picchu\",\n  \"destino\": \"Cusco, Peru\",\n  \"precio\": 899,\n  \"duracionDias\": 3\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/paqueteturistico",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "paqueteturistico"
+              ]
+            },
+            "description": "Crear paquete turistico. Los campos precio y duracionDias son opcionales."
+          },
+          "response": []
+        },
+        {
           "name": "Paquetes Disponibles",
           "request": {
             "method": "GET",

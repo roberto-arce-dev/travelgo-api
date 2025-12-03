@@ -1,5 +1,6 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, IsNumber, Min } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 
 export class CreatePaqueteTuristicoDto {
   @ApiProperty({
@@ -9,6 +10,14 @@ export class CreatePaqueteTuristicoDto {
   @IsNotEmpty()
   @IsString()
   nombre: string;
+
+  @ApiProperty({
+    example: 'Cusco, Perú',
+    description: 'Destino principal del paquete turístico',
+  })
+  @IsNotEmpty()
+  @IsString()
+  destino: string;
 
   @ApiPropertyOptional({
     example: 'Descripción del PaqueteTuristico',
@@ -33,4 +42,24 @@ export class CreatePaqueteTuristicoDto {
   @IsOptional()
   @IsString()
   imagenThumbnail?: string;
+
+  @ApiPropertyOptional({
+    example: 899.99,
+    description: 'Precio del paquete turístico (opcional)',
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0)
+  precio?: number;
+
+  @ApiPropertyOptional({
+    example: 3,
+    description: 'Duración del paquete en días (opcional)',
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(1)
+  duracionDias?: number;
 }

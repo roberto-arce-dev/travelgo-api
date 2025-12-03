@@ -14,11 +14,11 @@ export class PaqueteTuristico {
   @Prop({ required: true })
   destino: string;
 
-  @Prop({ min: 1 })
-  duracionDias: number;
+  @Prop({ min: 1, required: false })
+  duracionDias?: number;
 
-  @Prop({ min: 0 })
-  precio: number;
+  @Prop({ min: 0, required: false })
+  precio?: number;
 
   @Prop({ type: [String], default: [] })
   incluye?: any;

@@ -284,11 +284,13 @@ Content-Type: application/json
 {
   "nombre": "Aventura en Machu Picchu",
   "descripcion": "Tour de 3 días a Machu Picchu",
+  "destino": "Cusco, Perú",
   "precio": 899.0,
-  "duracion": 3,
-  "destino": "Cusco, Perú"
+  "duracionDias": 3
 }
 ```
+
+`precio` y `duracionDias` son opcionales: puedes omitirlos si aún no tienes esos datos.
 
 **Respuesta exitosa:**
 ```json
@@ -356,13 +358,14 @@ file: [imagen.jpg]
 6. **En el Body (JSON):** Pegar el siguiente JSON:
    ```json
    {
-  "nombre": "Aventura en Machu Picchu",
-  "descripcion": "Tour de 3 días a Machu Picchu",
-  "precio": 899.0,
-  "duracion": 3,
-  "destino": "Cusco, Perú"
-}
+     "nombre": "Aventura en Machu Picchu",
+     "descripcion": "Tour de 3 días a Machu Picchu",
+     "destino": "Cusco, Perú",
+     "precio": 899.0,
+     "duracionDias": 3
+   }
    ```
+   `precio` y `duracionDias` son opcionales.
 7. **Enviar** la petición
 8. **Copiar** el `_id` del paqueteturistico creado
 
@@ -419,7 +422,7 @@ TOKEN=$(curl -X POST http://localhost:3005/api/auth/login \
 PRODUCTO_ID=$(curl -X POST http://localhost:3005/api/paqueteturistico \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{   "nombre": "Aventura en Machu Picchu",   "descripcion": "Tour de 3 días a Machu Picchu",   "precio": 899.0,   "duracion": 3,   "destino": "Cusco, Perú" }' \
+  -d '{ "nombre": "Aventura en Machu Picchu", "descripcion": "Tour de 3 días a Machu Picchu", "destino": "Cusco, Perú", "precio": 899.0, "duracionDias": 3 }' \
   | jq -r '.data._id')
 
 echo "PaqueteTuristico creado con ID: $PRODUCTO_ID"
