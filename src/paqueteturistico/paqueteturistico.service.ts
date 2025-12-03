@@ -46,10 +46,7 @@ export class PaqueteTuristicoService {
 
   async findDisponibles(): Promise<PaqueteTuristico[]> {
     const paquetes = await this.paqueteturisticoModel
-      .find({ 
-        disponible: true,
-        fechaInicio: { $gte: new Date() }
-      })
+      .find({ disponible: true })
       .sort({ precio: 1 })
       .limit(50);
     return paquetes;
