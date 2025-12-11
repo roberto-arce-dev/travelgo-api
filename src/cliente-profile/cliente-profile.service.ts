@@ -23,6 +23,18 @@ export class ClienteProfileService {
     return this.clienteprofileModel.findOne({ user: new Types.ObjectId(userId) }).populate('user', 'email role').exec();
   }
 
+  async findOrCreateByUserId(userId: string): Promise<ClienteProfile> {
+    let profile = await this.findByUserId(userId);
+    if (!profile) {
+      profile = await this.create(userId, {
+        nombre: 'Usuario Sin Nombre',
+        telefono: '',
+        direccion: '',
+      });
+    }
+    return profile;
+  }
+
   async findAll(): Promise<ClienteProfile[]> {
     return this.clienteprofileModel.find().populate('user', 'email role').exec();
   }

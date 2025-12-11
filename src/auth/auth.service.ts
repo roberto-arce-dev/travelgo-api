@@ -35,10 +35,6 @@ export class AuthService implements OnModuleInit {
     }
   }
 
-  /**
-   * Registro público - Crea User + Profile correspondiente según el rol
-   * Factory Pattern: Crea el tipo de profile según el rol
-   */
   async register(registerDto: RegisterDto) {
     const existingUser = await this.userModel.findOne({ email: registerDto.email });
     if (existingUser) {
@@ -47,7 +43,6 @@ export class AuthService implements OnModuleInit {
 
     const hashedPassword = await bcrypt.hash(registerDto.password, 10);
 
-    // 1. Crear User (solo autenticación)
     const newUser = await this.userModel.create({
       email: registerDto.email,
       password: hashedPassword,
@@ -55,7 +50,6 @@ export class AuthService implements OnModuleInit {
     });
 
     try {
-      // 2. Crear Profile según el rol (Factory Pattern)
       const userId = (newUser._id as any).toString();
 
       switch (registerDto.role) {
@@ -78,7 +72,6 @@ export class AuthService implements OnModuleInit {
         access_token: this.generateToken(userObject),
       };
     } catch (error) {
-      // Si falla la creación del profile, eliminar el user creado (rollback)
       await this.userModel.findByIdAndDelete((newUser._id as any).toString());
       throw error;
     }
@@ -99,9 +92,22 @@ export class AuthService implements OnModuleInit {
 
     const userObject = user.toObject();
     const { password, ...userWithoutPassword } = userObject;
+    const userId = (user._id as any).toString();
+
+    const profile: any = await this.clienteProfileService.findOrCreateByUserId(userId);
+    const profileObject = profile && profile.toObject ? profile.toObject() : profile;
+    const { _id: profileId, user: userRef, createdAt: profileCreatedAt, updatedAt: profileUpdatedAt, __v, ...profileData } = profileObject || {};
+
+    const mergedUser = {
+      ...userWithoutPassword,
+      ...profileData,
+      profileId: profileId?.toString(),
+      profileCreatedAt,
+      profileUpdatedAt,
+    };
 
     return {
-      user: userWithoutPassword,
+      user: mergedUser,
       access_token: this.generateToken(userObject),
     };
   }
@@ -113,7 +119,18 @@ export class AuthService implements OnModuleInit {
     }
     const userObject = user.toObject();
     const { password, ...userWithoutPassword } = userObject;
-    return userWithoutPassword;
+
+    const profile: any = await this.clienteProfileService.findOrCreateByUserId(userId);
+    const profileObject = profile && profile.toObject ? profile.toObject() : profile;
+    const { _id: profileId, user: userRef, createdAt: profileCreatedAt, updatedAt: profileUpdatedAt, __v, ...profileData } = profileObject || {};
+
+    return {
+      ...userWithoutPassword,
+      ...profileData,
+      profileId: profileId?.toString(),
+      profileCreatedAt,
+      profileUpdatedAt,
+    };
   }
 
   private generateToken(user: any): string {
