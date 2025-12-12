@@ -20,19 +20,25 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Instalar dependencias necesarias para sharp (procesamiento de imágenes)
+# Instalar dependencias necesarias para sharp (procesamiento de imágenes) y compilación
 RUN apk add --no-cache \
     libc6-compat \
     vips-dev \
     fftw-dev \
     build-base \
     python3 \
+    make \
+    g++ \
     && rm -rf /var/cache/apk/*
 
 # Copiar package files
 COPY package*.json ./
 
+# Instalar node-gyp globalmente para evitar el error de "missing node-gyp"
+RUN npm install -g node-gyp
+
 # Instalar solo dependencias de producción
+# Agregamos --ignore-scripts=false para permitir que sharp ejecute su script de install
 RUN npm ci --only=production
 
 # Copiar build desde builder stage
